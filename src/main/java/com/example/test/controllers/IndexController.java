@@ -9,8 +9,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.io.IOException;
 
 @RestController
@@ -20,16 +18,13 @@ public class IndexController {
 	@GetMapping("/")
 	public String index() {
 		try {
-			// 1. URL 선언
 			String connUrl = "https://www.daum.net";
-			// 2. HTML 가져오기
 			Document doc = Jsoup.connect(connUrl).header("content-type", "html; charset=utf-8").get();
-
 			String a = "<htmlbody><b>112002*b</b>1가A희<a>B1**e</a>aa<div>a</div>a</body></html>";
-			System.out.println(html2text(a));
-			System.out.println(step3(html2text(a)));
-			System.out.println(step4(step3(html2text(a))));
-			return html2text(doc.toString());
+			System.out.println(step2(a));
+			System.out.println(step3(step2(a)));
+			System.out.println(step4(step3(step2(a))));
+			return step2(doc.toString());
 		} catch (IOException e) {
 			// Exp : Connection Fail
 			System.out.print(e);
@@ -39,7 +34,7 @@ public class IndexController {
 
 		return "index";
 	}
-	public String html2text(String html) {
+	public String step2(String html) {
 		return Jsoup.parse(html).text();
 	}
 
@@ -55,24 +50,25 @@ public class IndexController {
 		System.out.println(Arrays.toString(numberArr));
 		System.out.println(Arrays.toString(alphabetArr));
 		Arrays.sort(numberArr);
-		// Arrays.sort(alphabetArr, String.CASE_INSENSITIVE_ORDER);
 		Arrays.sort(alphabetArr, new Comparator<String>(){
-
 			@Override
 			public int compare(String o1, String o2) {
-				Pattern upper = Pattern.compile("[^A-Z]");
-				Pattern lower = Pattern.compile("[^a-z]");
-				Boolean a = upper.matcher(o1).find();
-				return 0;
+				double a = (Character.codePointAt(o1, 0) >= 97 ? Character.codePointAt(o1, 0) : Character.codePointAt(o1, 0) + 31.5);
+				double b = (Character.codePointAt(o2, 0) >= 97 ? Character.codePointAt(o2, 0) : Character.codePointAt(o2, 0) + 31.5);
+				return (int)((a - b) * 2);
 			}
 
 		});
 		System.out.println(Arrays.toString(numberArr));
 		System.out.println(Arrays.toString(alphabetArr));
 		Map<String, String> map = new HashMap<>();
-		map.put("alphabet", alphabet);
-		map.put("number", number);
+		map.put("alphabet", String.join("", alphabetArr));
+		map.put("number", String.join("", numberArr));
 		return map;
+	}
+
+	public String step5(String alphabet, String number) {
+		return "";
 	}
 
 }
