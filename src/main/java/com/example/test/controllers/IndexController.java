@@ -16,14 +16,20 @@ import java.io.IOException;
 public class IndexController {
 
 	@GetMapping("/")
-	public String index() {
+	public String calculator() {
 		try {
 			String connUrl = "https://www.daum.net";
 			Document doc = Jsoup.connect(connUrl).header("content-type", "html; charset=utf-8").get();
-			String a = "<htmlbody><b>112002*b</b>1가A희<a>B1**e</a>aa<div>a</div>a</body></html>";
-			System.out.println(step2(a));
-			System.out.println(step3(step2(a)));
-			System.out.println(step4(step3(step2(a))));
+			String a = "<html><body>123456789</body></html>";
+			String step2 = step2(a);
+			System.out.println(step2);
+			String step3 = step3(step2);
+			System.out.println(step3);
+			Map<String, String[]> step4 = step4(step3);
+			System.out.println(step4);
+			String step5 = step5(step4.get("alphabet"), step4.get("number"));
+			System.out.println(step5);
+			String step6 = step6(step5, 10);
 			return step2(doc.toString());
 		} catch (IOException e) {
 			// Exp : Connection Fail
@@ -42,13 +48,11 @@ public class IndexController {
 		return text.replaceAll("[ !@#$%^&*(),.?\":{}|<>가-힣]", "");
 	}
 
-	public Map<String, String> step4(String text) {
+	public Map<String, String[]> step4(String text) {
 		String number = text.replaceAll("[^0-9]", "");
 		String alphabet = text.replaceAll("[^a-z^A-Z]", "");
-		String[] numberArr = number.split("");
-		String[] alphabetArr = alphabet.split("");
-		System.out.println(Arrays.toString(numberArr));
-		System.out.println(Arrays.toString(alphabetArr));
+		String[] numberArr = number.trim().length() == 0 ? new String[0] : number.split("");
+		String[] alphabetArr = alphabet.trim().length() == 0 ? new String[0] : alphabet.split("");
 		Arrays.sort(numberArr);
 		Arrays.sort(alphabetArr, new Comparator<String>(){
 			@Override
@@ -61,13 +65,35 @@ public class IndexController {
 		});
 		System.out.println(Arrays.toString(numberArr));
 		System.out.println(Arrays.toString(alphabetArr));
-		Map<String, String> map = new HashMap<>();
-		map.put("alphabet", String.join("", alphabetArr));
-		map.put("number", String.join("", numberArr));
+		Map<String, String[]> map = new HashMap<>();
+		System.out.println(String.join("", alphabetArr));
+		System.out.println(String.join("", numberArr));
+		map.put("alphabet", alphabetArr);
+		map.put("number", numberArr);
 		return map;
 	}
 
-	public String step5(String alphabet, String number) {
+	public String step5(String[] alphabet, String[] number) {
+		String[] arr = new String[alphabet.length + number.length];
+		int maxLength = Math.max(alphabet.length, number.length);
+		int arrayIndex = 0;
+		System.out.println(alphabet.length);
+		System.out.println(number.length);
+		for (int i = 0; i < maxLength; i++) {
+			if (alphabet.length > i) arr[arrayIndex++] = alphabet[i];
+			if (number.length > i) arr[arrayIndex++] = number[i];
+		}
+		System.out.println(Arrays.toString(arr));
+
+		return String.join("", arr);
+	}
+
+	public String step6(String text, int divideCount) {
+		System.out.println(text.length());
+		int remainderIndex = text.length() % divideCount;
+		System.out.println(remainderIndex);
+		System.out.println(text.substring(0, text.length() - remainderIndex));
+		System.out.println(text.substring(text.length() - remainderIndex));
 		return "";
 	}
 
