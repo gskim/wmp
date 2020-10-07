@@ -1,6 +1,6 @@
 package com.example.test.controllers;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.jsoup.Jsoup;
@@ -10,38 +10,33 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
-
+import com.example.test.models.PostRequest;
+import org.springframework.web.bind.annotation.RequestBody;
+import javax.validation.Valid;
 @RestController
 @EnableWebMvc
 public class IndexController {
 
-	@GetMapping("/")
-	public String calculator() {
-		try {
-			String connUrl = "https://www.daum.net";
-			Document doc = Jsoup.connect(connUrl).header("content-type", "html; charset=utf-8").get();
-			String a = "<html><body>123456789</body></html>";
-			String step2 = step2(a);
-			System.out.println(step2);
-			String step3 = step3(step2);
-			System.out.println(step3);
-			Map<String, String[]> step4 = step4(step3);
-			System.out.println(step4);
-			String step5 = step5(step4.get("alphabet"), step4.get("number"));
-			System.out.println(step5);
-			String step6 = step6(step5, 10);
-			return step2(doc.toString());
-		} catch (IOException e) {
-			// Exp : Connection Fail
-			System.out.print(e);
-			e.printStackTrace();
+	@PostMapping("/")
+	public Map<String, String> calculator(@Valid @RequestBody PostRequest body) throws IOException {
+		String connUrl = body.getUrl();
+		Document doc = Jsoup.connect(connUrl).header("content-type", "html; charset=utf-8").get();
 
-		}
+		String step2 = step2(doc.toString(), body.getType());
 
-		return "index";
+		String step3 = step3(step2);
+
+		Map<String, String[]> step4 = step4(step3);
+
+		String step5 = step5(step4.get("alphabet"), step4.get("number"));
+
+		Map<String, String> step6 = step6(step5, Integer.valueOf(body.getGroupNumber()));
+
+		return step6;
 	}
-	public String step2(String html) {
-		return Jsoup.parse(html).text();
+	public String step2(String html, String type) {
+		if (type == "text") return Jsoup.parse(html).text();
+		return html;
 	}
 
 	public String step3(String text) {
@@ -63,11 +58,9 @@ public class IndexController {
 			}
 
 		});
-		System.out.println(Arrays.toString(numberArr));
-		System.out.println(Arrays.toString(alphabetArr));
+
 		Map<String, String[]> map = new HashMap<>();
-		System.out.println(String.join("", alphabetArr));
-		System.out.println(String.join("", numberArr));
+
 		map.put("alphabet", alphabetArr);
 		map.put("number", numberArr);
 		return map;
@@ -77,24 +70,21 @@ public class IndexController {
 		String[] arr = new String[alphabet.length + number.length];
 		int maxLength = Math.max(alphabet.length, number.length);
 		int arrayIndex = 0;
-		System.out.println(alphabet.length);
-		System.out.println(number.length);
+
 		for (int i = 0; i < maxLength; i++) {
 			if (alphabet.length > i) arr[arrayIndex++] = alphabet[i];
 			if (number.length > i) arr[arrayIndex++] = number[i];
 		}
-		System.out.println(Arrays.toString(arr));
 
 		return String.join("", arr);
 	}
 
-	public String step6(String text, int divideCount) {
-		System.out.println(text.length());
+	public Map<String, String> step6(String text, int divideCount) {
 		int remainderIndex = text.length() % divideCount;
-		System.out.println(remainderIndex);
-		System.out.println(text.substring(0, text.length() - remainderIndex));
-		System.out.println(text.substring(text.length() - remainderIndex));
-		return "";
+		Map<String, String> map = new HashMap<>();
+		map.put("share", text.substring(0, text.length() - remainderIndex));
+		map.put("remainder", text.substring(text.length() - remainderIndex));
+		return map;
 	}
 
 }

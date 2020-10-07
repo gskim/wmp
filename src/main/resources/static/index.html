@@ -7,21 +7,74 @@
 </head>
 <body>
     <Form>
-		<label>
-			URL : <input type="text" />
-		</label>
-		<label>
+		<div>
+			<label>
+				URL : <input type="text" id="url" value="" />
+			</label>
+		</div>
+		<div>
+			<label>
+				TYPE :
+				<select id="type" >
+					<option selected value="html" >HTML</option>
+					<option value="text" >TEXT</option>
+				</select>
+			</label>
+		</div>
+		<div>
+			<label>
+				출력 묶음 단위(자연수) :
+				<input type="number" id="group-number" value="1" />
+			</label>
+		</div>
 
-			<select>
-				<option selected value="html" >HTML</option>
-				<option value="text" >TEXT</option>
-			</select>
-		</label>
 
+		<input type="button" id="submit" value="출력" />
 	</Form>
+	<div>
+		<p style="width: 200px;" id="share" ></p>
+		<p style="width: 200px;" id="remainder"></p>
+	</div>
 
 <script>
     $(function(){
+		$("#submit").click(() => {
+			console.log("click")
+			const url = $("#url").val()
+			const type = $("#type").val()
+			const groupNumber = $("#group-number").val()
+			if (url.trim() === "") {
+				alert("url을 입력해주세요.")
+				return false
+			}
+
+			if (groupNumber.trim() === "") {
+				alert("출력묶음 단위를 입력해주세요.")
+				return false
+			}
+
+			if (groupNumber <= 0) {
+				alert("출력묶음 단위는 0보다 커야합니다.")
+				return false
+			}
+			$.ajax({
+				type: "POST",
+				url: "/",
+				contentType: "application/json",
+				header:{
+					"X-HTTP-Method-Override":"POST"},
+				dataType:"json",
+				data: JSON.stringify({ url: url, type: type, groupNumber: groupNumber }),
+				success: (data) => {
+					$("#share").text(data["share"])
+					$("#remainder").text(data["remainder"])
+				},
+				error: (e) => {
+					alert(JSON.parse(e))
+				}
+			})
+
+		})
 
     });
 </script>
